@@ -44,12 +44,17 @@ var linkingdom = {
                             change.started = false;
                             canvas.style.cursor = "";
                             new_position = event;
+                            isEnd = true;
                             break;
                     }
                     if (isMove) {
-                        position.X = change.X - new_position.clientX;
-                        position.Y = change.Y - new_position.clientY;
-                        viewer.update();
+                        viewer.update({
+                            X: position.X + change.X - new_position.clientX,
+                            Y: position.Y + change.Y - new_position.clientY
+                        });
+                    } else if (isEnd) {
+                        position.X += change.X - new_position.clientX;
+                        position.Y += change.Y - new_position.clientY;
                     } else {
                         change.X = new_position.clientX;
                         change.Y = new_position.clientY;
@@ -71,12 +76,12 @@ var linkingdom = {
             linkingdom.viewer.update();
         },
         paint: {
-            grid: function() {
+            grid: function(position) {
+                if (!position) position = linkingdom.viewer.position;
                 var painter = linkingdom.painter,
                     chessboard = linkingdom.chessboard,
-                    position = linkingdom.viewer.position,
-                    pX = Math.abs(position.X) % 80,
-                    pY = Math.abs(position.Y) % 80,
+                    pX = -position.X % 80,
+                    pY = -position.Y % 80,
                     column = Math.ceil(chessboard.width / 80),
                     row = Math.ceil(chessboard.height / 80);
                 for (var x = 0; x < column; x++) {
@@ -95,10 +100,11 @@ var linkingdom = {
                 }
             }
         },
-        update: function() {
+        update: function(position) {
             var canvas = linkingdom.canvas;
             linkingdom.painter.clearRect(0, 0, canvas.width, canvas.height);
-            this.paint.grid();
+            if (position) console.log(position.X, position.Y);
+            this.paint.grid(position);
         }
     },
     chessboard: {
