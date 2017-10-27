@@ -4,7 +4,8 @@ var viewer = document.querySelector("canvas"),
         start: function() {
             var movement = this.viewer.position.movement;
             viewer.addEventListener("mousewheel", function(event) {
-                console.log(event);
+                var wheel_point = event;
+                movement.scroll(event.deltaX, event.deltaY);
             });
             viewer.addEventListener("touchstart", function(event) {
                 var touch_point = event.touches[0];
@@ -43,23 +44,20 @@ var viewer = document.querySelector("canvas"),
                     started: false,
                     moving: false,
                     start: function(x, y) {
-                        console.log(
-                            "start from(" + x + "," + y + ")/(" +
-                            ((x / 60) | 0) + "," + ((y / 60) | 0) +
-                            ")"
-                        );
                         this.position.start.X = x;
                         this.position.start.Y = y;
                         this.started = true;
                         this.moving = false;
                     },
+                    scroll: function(x, y) {
+                        var now_position = linkingdom.viewer.position;
+                        linkingdom.viewer.positionTo(
+                            now_position.X += x,
+                            now_position.Y += y
+                        );
+                    },
                     move: function(x, y) {
                         if (!this.started) return;
-                        console.log(
-                            "move to(" + x + "," + y + ")/(" +
-                            ((x / 60) | 0) + "," + ((y / 60) | 0) +
-                            ")"
-                        );
                         var now_position = linkingdom.viewer.position;
                         viewer.style.cursor = "move";
                         this.position.X = x;
@@ -73,9 +71,8 @@ var viewer = document.querySelector("canvas"),
                     end: function() {
                         if (this.started && !this.moving) {
                             this.started = false;
-                            return console.log("end");
+                            return;
                         }
-                        console.log("end");
                         this.started = false;
                         this.moving = false;
                         var now_position = linkingdom.viewer.position;
