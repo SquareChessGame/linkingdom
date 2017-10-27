@@ -3,6 +3,9 @@ var viewer = document.querySelector("canvas"),
     linkingdom = {
         start: function() {
             var movement = this.viewer.position.movement;
+            viewer.addEventListener("mousewheel", function(event) {
+                console.log(event);
+            });
             viewer.addEventListener("touchstart", function(event) {
                 var touch_point = event.touches[0];
                 movement.start(touch_point.clientX, touch_point.clientY);
@@ -12,7 +15,9 @@ var viewer = document.querySelector("canvas"),
                 movement.move(touch_point.clientX, touch_point.clientY);
             });
             viewer.addEventListener("touchend", function() { movement.end(); });
+            viewer.addEventListener("touchcancel", function() { movement.end(); });
             viewer.addEventListener("mousedown", function(event) {
+                if (event.which != 1) return;
                 var mouse_point = event;
                 movement.start(mouse_point.clientX, mouse_point.clientY);
             });
@@ -21,6 +26,7 @@ var viewer = document.querySelector("canvas"),
                 movement.move(mouse_point.clientX, mouse_point.clientY);
             });
             viewer.addEventListener("mouseup", function() { movement.end(); });
+            viewer.addEventListener("mouseleave", function() { movement.end(); });
             this.viewer.resize();
         },
         viewer: {
@@ -37,7 +43,11 @@ var viewer = document.querySelector("canvas"),
                     started: false,
                     moving: false,
                     start: function(x, y) {
-                        console.log("start(" + x + "," + y + ")");
+                        console.log(
+                            "start from(" + x + "," + y + ")/(" +
+                            ((x / 60) | 0) + "," + ((y / 60) | 0) +
+                            ")"
+                        );
                         this.position.start.X = x;
                         this.position.start.Y = y;
                         this.started = true;
@@ -45,7 +55,11 @@ var viewer = document.querySelector("canvas"),
                     },
                     move: function(x, y) {
                         if (!this.started) return;
-                        console.log("move(" + x + "," + y + ")");
+                        console.log(
+                            "move to(" + x + "," + y + ")/(" +
+                            ((x / 60) | 0) + "," + ((y / 60) | 0) +
+                            ")"
+                        );
                         var now_position = linkingdom.viewer.position;
                         viewer.style.cursor = "move";
                         this.position.X = x;
@@ -57,7 +71,10 @@ var viewer = document.querySelector("canvas"),
                         this.moving = true;
                     },
                     end: function() {
-                        if (this.started && !this.moving) return;
+                        if (this.started && !this.moving) {
+                            this.started = false;
+                            return console.log("end");
+                        }
                         console.log("end");
                         this.started = false;
                         this.moving = false;
